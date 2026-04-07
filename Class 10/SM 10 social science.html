@@ -285,6 +285,37 @@ body { display:flex; height:100vh; overflow:hidden; }
 .Economics:hover{
   background:#d68910;
 }	
+
+
+
+
+/* MOVING NOTICE BAR */
+#noticeBar{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  overflow:hidden;
+  background:#ffff66;   /* yellow background */
+  z-index:50;
+  pointer-events:none;
+  padding:2px 0;
+}
+
+#noticeText{
+  white-space:nowrap;
+  color:#ff0000;        /* red text */
+  font-size:12px;       /* small font */
+  font-weight:bold;
+  animation:scrollNotice 20s linear infinite;
+}
+
+@keyframes scrollNotice{
+  from { transform: translateX(100%); }
+  to { transform: translateX(-100%); }
+}
+
+
 	
 </style>
 </head>
@@ -488,6 +519,31 @@ body { display:flex; height:100vh; overflow:hidden; }
 </div> <!-- CLOSE SIDEBAR -->
 
 <div id="viewer" role="main" aria-label="Document viewer">
+	
+
+
+
+
+
+
+
+
+<div id="noticeBar">
+  <div id="noticeText">
+  Our website is currently under development. Study materials are being uploaded regularly. 
+  If you need any specific chapter, practice test, or question, please call 9706380357. 
+  We will upload it on a priority basis.
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
   <div id="imgWrapper">
     <img id="contentImg" src="" alt="Page" decoding="async" loading="eager">
 
