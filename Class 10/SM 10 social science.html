@@ -316,6 +316,23 @@ body { display:flex; height:100vh; overflow:hidden; }
 }
 
 
+
+
+
+#drawCanvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:1200;
+  display:none;
+  background:transparent;
+  touch-action:none;
+}
+
+#penBtn.active{
+  background:#22c55e;
+}
 	
 </style>
 </head>
@@ -550,7 +567,7 @@ body { display:flex; height:100vh; overflow:hidden; }
 
 
 
-
+<canvas id="drawCanvas"></canvas>
 
 
 
@@ -573,6 +590,8 @@ body { display:flex; height:100vh; overflow:hidden; }
 onclick="window.open('https://ai-question-and-its-solution-3oip.onrender.com')">🧠</button>
   <button class="btn" id="zoomIn" aria-label="Zoom in">⊕</button>
   <button class="btn" id="zoomOut" aria-label="Zoom out">⊖</button>
+    <button class="btn" id="penBtn">✏</button>
+<button class="btn" id="clearBtn">🗑</button>
      <button class="btn" id="homeBtn" onclick="window.open('https://gten-educational-platform.github.io/Class-12/class 10 button.html')">🏠</button>
 
 </div>
@@ -1628,6 +1647,142 @@ bookmarkBtn.addEventListener("click", function(){
 
  localStorage.setItem(key, JSON.stringify(bookmarks));
 });
+
+
+
+
+
+/* ================= SMOOTH PEN ================= */
+
+const drawCanvas = document.getElementById("drawCanvas");
+const drawCtx = drawCanvas.getContext("2d");
+
+let penMode = false;
+let drawing = false;
+let lastX = 0;
+let lastY = 0;
+
+const penColor = "red";
+const penSize = 3;
+
+function resizeDrawCanvas(){
+  const rect = viewer.getBoundingClientRect();
+  const ratio = window.devicePixelRatio || 1;
+
+  drawCanvas.width = rect.width * ratio;
+  drawCanvas.height = rect.height * ratio;
+
+  drawCanvas.style.width = rect.width + "px";
+  drawCanvas.style.height = rect.height + "px";
+
+  drawCtx.setTransform(ratio,0,0,ratio,0,0);
+}
+
+resizeDrawCanvas();
+window.addEventListener("resize", resizeDrawCanvas);
+
+document.getElementById("penBtn").addEventListener("click", () => {
+  penMode = !penMode;
+
+  if(penMode){
+    drawCanvas.style.display = "block";
+    drawCanvas.style.pointerEvents = "auto";
+    document.getElementById("penBtn").classList.add("active");
+  } else {
+    drawCanvas.style.pointerEvents = "none";
+    document.getElementById("penBtn").classList.remove("active");
+  }
+});
+
+document.getElementById("clearBtn").addEventListener("click", () => {
+  drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+});
+
+/* mouse */
+drawCanvas.addEventListener("mousedown", e => {
+  if(!penMode) return;
+  drawing = true;
+  lastX = e.offsetX;
+  lastY = e.offsetY;
+});
+
+drawCanvas.addEventListener("mousemove", e => {
+  if(!drawing || !penMode) return;
+
+  const x = e.offsetX;
+  const y = e.offsetY;
+
+  drawCtx.lineCap = "round";
+  drawCtx.lineJoin = "round";
+  drawCtx.strokeStyle = penColor;
+  drawCtx.lineWidth = penSize;
+
+  const midX = (lastX + x) / 2;
+  const midY = (lastY + y) / 2;
+
+  drawCtx.beginPath();
+  drawCtx.moveTo(lastX, lastY);
+  drawCtx.quadraticCurveTo(midX, midY, x, y);
+  drawCtx.stroke();
+
+  lastX = x;
+  lastY = y;
+});
+
+window.addEventListener("mouseup", () => {
+  drawing = false;
+  drawCtx.beginPath();
+});
+
+/* touch */
+drawCanvas.addEventListener("touchstart", e => {
+  if(!penMode) return;
+  e.preventDefault();
+
+  const rect = drawCanvas.getBoundingClientRect();
+  const t = e.touches[0];
+
+  drawing = true;
+  lastX = t.clientX - rect.left;
+  lastY = t.clientY - rect.top;
+}, {passive:false});
+
+drawCanvas.addEventListener("touchmove", e => {
+  if(!drawing || !penMode) return;
+  e.preventDefault();
+
+  const rect = drawCanvas.getBoundingClientRect();
+  const t = e.touches[0];
+
+  const x = t.clientX - rect.left;
+  const y = t.clientY - rect.top;
+
+  drawCtx.lineCap = "round";
+  drawCtx.lineJoin = "round";
+  drawCtx.strokeStyle = penColor;
+  drawCtx.lineWidth = penSize;
+
+  const midX = (lastX + x) / 2;
+  const midY = (lastY + y) / 2;
+
+  drawCtx.beginPath();
+  drawCtx.moveTo(lastX, lastY);
+  drawCtx.quadraticCurveTo(midX, midY, x, y);
+  drawCtx.stroke();
+
+  lastX = x;
+  lastY = y;
+}, {passive:false});
+
+drawCanvas.addEventListener("touchend", () => {
+  drawing = false;
+  drawCtx.beginPath();
+});
+
+
+
+
+
 
 </script>
 <!-- ===== BUY HARD COPY POPUP ===== -->
